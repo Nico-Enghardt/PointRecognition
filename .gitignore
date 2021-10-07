@@ -1,0 +1,7 @@
+artifacts/
+Datasets/
+Models/
+Videos/
+.vscode/
+__pycache__/
+wandb/
