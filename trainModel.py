@@ -1,4 +1,5 @@
 import os
+import platform
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import wandb
 import tensorflow as tf
@@ -8,6 +9,11 @@ import math
 import cv2
 import skvideo.io
 import sys
+
+
+local = False
+if platform.node()=="kubuntu20nico2":
+    local = True
 
 run = wandb.init(job_type="model-training", config={"epochs":2000,"learning_rate":0.0000003})
 
@@ -27,6 +33,8 @@ model = tf.keras.models.load_model(model_directory)
 datasetArtifact = run.use_artifact(trainingsetName+":latest")
 
 datasetFolder = "Datasets/"+trainingsetName
+if not local:
+    datasetFolder = datasetArtifact.download()
 
 files = os.listdir(datasetFolder)
 
@@ -46,17 +54,21 @@ for file in files:
     if format=="npy":
         labels = np.concatenate((labels,np.load(datasetFolder+"/"+file)))
 
+        if local:
+            break;
+
 labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 
 # Trenne inputs von outputs ab (Preparation for training)
 trainingInputs,trainingLabels = split.splitDataset(pictures,labels,splitSettings,mode="training")
+trainingInputs, trainingLabels = np.array(trainingInputs), np.array(trainingLabels)
 
 # Fit model to training data --------------------------------------------------------------------------------------------
 e = 0
-while e < run.config["epochs"]:
+while e < run.config["epochs"]/5:
     model.fit(trainingInputs,trainingLabels,verbose=0)
     wandb.log({"acc":model.history.history["mean_squared_error"][0]})
-    e += 1
+    e += 5
     key = cv2.waitKey(1)
     if key == ord('q'):
         break
@@ -77,7 +89,7 @@ prediction = model(testInputs,testLabels)
 mse = tf.keras.losses.MeanSquaredError()
 quality = math.sqrt(mse(prediction,testLabels))
 
-print(f"\n The networt predicts with {quality} pixels of accuracy.")
+#print(f"\n The networt predicts with {quality} pixels of accuracy.")
 
 # Save Model online and finish run –------------------------------------------------------------------------------------
 
