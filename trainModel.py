@@ -83,7 +83,7 @@ print("\n")
 
 # Prediction Quality on Training Set
 
-testInputs,testLabels = split.splitLabels(split.splitDataset(data,splitSettings ,mode="testing"))
+testInputs,testLabels = split.splitLabels(split.splitDataset(pictures,labels,splitSettings ,mode="testing"))
 prediction = model(testInputs,testLabels)
 
 mse = tf.keras.losses.MeanSquaredError()

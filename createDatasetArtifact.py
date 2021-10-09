@@ -7,7 +7,7 @@ run = wandb.init(project="PointRecognition",job_type="dataset-creation")
 
 datasetName = "Hsv640"
 compressor = "hsv"
-shape = (640,480,3)
+shape = (480,640,3)
 
 dataset = wandb.Artifact(datasetName,type="dataset")
 
