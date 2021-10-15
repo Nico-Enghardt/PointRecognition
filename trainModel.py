@@ -19,7 +19,7 @@ run = wandb.init(job_type="model-training", config={"epochs":2000,"learning_rate
 
 modelName = "Sparta"
 trainingsetName = "Hsv640"
-splitSettings = (.7,0,.3)
+#splitSettings = (.7,0,.3)
 
 # Load Model --------------------------------------------------------------------------------------------
 
@@ -60,15 +60,33 @@ for file in files:
 labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 
 # Trenne inputs von outputs ab (Preparation for training)
-trainingInputs,trainingLabels = split.splitDataset(pictures,labels,splitSettings,mode="training")
-trainingInputs, trainingLabels = np.array(trainingInputs), np.array(trainingLabels)
+#trainingInputs,trainingLabels = split.splitDataset(pictures,labels,splitSettings,mode="training")
+#trainingInputs, trainingLabels = np.array(trainingInputs), np.array(trainingLabels)
 
 # Fit model to training data --------------------------------------------------------------------------------------------
 e = 0
-while e < run.config["epochs"]/5:
-    model.fit(trainingInputs,trainingLabels,verbose=0)
-    wandb.log({"acc":model.history.history["mean_squared_error"][0]})
-    e += 5
+
+
+batch_size = 3;
+
+while e < run.config["epochs"]:
+    i = 0
+    mse = []
+
+    while i < len(pictures):
+        range = [i,i+batch_size]
+        
+        if i+batch_size > len(pictures):
+            range[1]=len(pictures)
+        trainingInputs = np.array(pictures[range[0]:range[1]])
+        trainingLabels = labels[range[0]:range[1]]
+
+        i=i+batch_size
+        model.fit(trainingInputs,trainingLabels,verbose=1)
+        mse.add(model.history.history["mean_squared_error"][0])
+
+    wandb.log({"acc":np.average(mse)})
+    
     key = cv2.waitKey(1)
     if key == ord('q'):
         break
