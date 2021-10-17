@@ -18,13 +18,16 @@ if platform.node()=="kubuntu20nico2":
 run = wandb.init(job_type="model-training", config={"epochs":2000,"learning_rate":0.0000003})
 
 modelName = "Sparta"
-trainingsetName = "Hsv640"
+trainingsetName = "Huegray160"
 #splitSettings = (.7,0,.3)
 
 # Load Model --------------------------------------------------------------------------------------------
 
 modelArtifact = run.use_artifact(modelName+":latest")
 model_directory = modelArtifact.download()
+
+if local:
+    model_directory = "./Models/"+modelName
 
 model = tf.keras.models.load_model(model_directory)
 
@@ -48,14 +51,15 @@ for file in files:
     if format=="mp4":
         video = skvideo.io.vread(datasetFolder+"/"+file)
         for frame in video:
-            pictures.append(frame)
+            frame = frame[:,:,:2]
+            pictures.append(frame.flatten())
         print(len(pictures))
     
     if format=="npy":
         labels = np.concatenate((labels,np.load(datasetFolder+"/"+file)))
 
-        if local:
-            break;
+        ##if local:
+        ##    break;
 
 labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 
@@ -67,7 +71,7 @@ labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 e = 0
 
 
-batch_size = 3;
+batch_size = 100;
 
 while e < run.config["epochs"]:
     i = 0
@@ -79,11 +83,11 @@ while e < run.config["epochs"]:
         if i+batch_size > len(pictures):
             range[1]=len(pictures)
         trainingInputs = np.array(pictures[range[0]:range[1]])
-        trainingLabels = labels[range[0]:range[1]]
+        trainingLabels = np.array(labels[range[0]:range[1]])
 
         i=i+batch_size
-        model.fit(trainingInputs,trainingLabels,verbose=1)
-        mse.add(model.history.history["mean_squared_error"][0])
+        model.fit(x=trainingInputs,y=trainingLabels,verbose=1)
+        mse.append(model.history.history["mean_squared_error"][0])
 
     wandb.log({"acc":np.average(mse)})
     
@@ -101,7 +105,7 @@ print("\n")
 
 # Prediction Quality on Training Set
 
-testInputs,testLabels = split.splitLabels(split.splitDataset(pictures,labels,splitSettings ,mode="testing"))
+testInputs,testLabels = split.splitLabels(split.splitDataset(pictures,labels,mode="testing"))
 prediction = model(testInputs,testLabels)
 
 mse = tf.keras.losses.MeanSquaredError()

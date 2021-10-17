@@ -126,8 +126,8 @@ def findDotCenter(img,testing=False):
     cv2.circle(img,center,6,(200,200,0),thickness=-1)
 
     # Generiere überdeckenden Kreis in Hautfarbe
-    innerRadius = 6
-    outerRadius = 7
+    innerRadius = 7
+    outerRadius = 9
 
     mask = np.zeros(img.shape,'uint8')
     mask = cv2.cvtColor(mask,cv2.COLOR_RGB2GRAY)

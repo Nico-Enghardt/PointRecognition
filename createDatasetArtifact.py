@@ -5,9 +5,9 @@ import numpy as np
 
 run = wandb.init(project="PointRecognition",job_type="dataset-creation")
 
-datasetName = "Hsv640"
-compressor = "hsv"
-shape = (480,640,3)
+datasetName = "Huegray160"
+compressor = "huegray160"
+shape = (120,160,2)
 
 dataset = wandb.Artifact(datasetName,type="dataset")
 

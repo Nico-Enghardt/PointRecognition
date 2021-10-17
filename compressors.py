@@ -43,12 +43,11 @@ def COMPhuegray160(picture): # Reduce size to 160x120, only use hue and grayscal
     gray = cv2.cvtColor(resized,cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(resized,cv2.COLOR_BGR2HSV)
 
-    return np.concatenate((hsv[:,:,0].flatten(),gray.flatten()))
+    return np.stack((hsv[:,:,0],gray),axis=-1)
 
 def COMPhsv(picture):
 
     return cv2.cvtColor(picture,cv2.COLOR_BGR2HSV)
-
 
 def size(compressor_type,training):
 

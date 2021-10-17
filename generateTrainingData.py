@@ -7,8 +7,8 @@ import distance
 import compressors
 import skvideo.io
 
-compressor = "hsv"
-datasetName = "Hsv640"
+compressor = "huegray160"
+datasetName = "Huegray160"
 
 lastCenterPoint,lastHeightCenter = findDot.adjustCenterPoint()
 
@@ -17,7 +17,7 @@ top = cv2.VideoCapture(0)
 bottom = cv2.VideoCapture(2)
 
 startTime = time.time()
-dauer = 80
+dauer = 1
 
 frames = []
 centerPoints = []
@@ -38,7 +38,7 @@ while time.time() - startTime < dauer:
     
     print(time.time()-startTime,center,heightCenter)
 
-    if distance.distance(lastCenterPoint,center) + distance.distance(lastHeightCenter,heightCenter)/3> 40 or center[0] == -100:
+    if distance.distance(lastCenterPoint,center) + distance.distance(lastHeightCenter,heightCenter)/3> 60 or center[0] == -100:
         continue
 
     # Add Frame without Point and found Centerpoint to their arrays

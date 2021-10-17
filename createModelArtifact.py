@@ -7,12 +7,13 @@ import compressors
 
 
 run = wandb.init(project="PointRecognition",job_type="model-creation")
-datasetArtifact = run.use_artifact('nico-enghardt/PointRecognition/Hsv640:latest', type='dataset')
+datasetArtifact = run.use_artifact('nico-enghardt/PointRecognition/Huegray160:latest', type='dataset')
 
 modelName = input("What shall be the new model's name? Type here:  ")
 
 learningRate = 0.0000003;
 imageShape = datasetArtifact.metadata["shape"]
+imageShape = 120*160*2
 
 architecture = (3600,1000,10,3)
 
@@ -24,7 +25,9 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(3,bias_initializer=tf.keras.initializers.RandomNormal(mean=400,stddev=100))
 ])
 
-model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learningRate),loss='mse',metrics=tf.keras.metrics.MeanSquaredError(name="mean_squared_error"))
+meanSquaredError = tf.keras.losses.MeanSquaredError()
+
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learningRate),loss=meanSquaredError,metrics=tf.keras.metrics.MeanSquaredError(name="mean_squared_error"))
 model.build()
 
 model.save("Models/"+modelName)
