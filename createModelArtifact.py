@@ -13,7 +13,7 @@ modelName = input("What shall be the new model's name? Type here:  ")
 
 learningRate = 0.0000003;
 imageShape = datasetArtifact.metadata["shape"]
-imageShape = 120*160*2
+imageShape = imageShape[0]*imageShape[1]*imageShape[2]
 
 architecture = (3600,1000,10,3)
 

@@ -27,25 +27,31 @@ def writeColorSettings():
 
 readColorSettings()
 
-def extractMass(img):
+def extractMass(img,lower=False):
     (contours, hierarchy) = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     areas = []
 
     for j in range(0,len(contours)):
-        areas.append({'area':cv2.contourArea(contours[j]), 'position':contours[j]})
-    
-    def ar(x):
-        return x['area']
-    
-    areas.sort(key=ar,reverse=True)
-
-    if len(areas) > 0:
-        moments = cv2.moments(areas[0]["position"]);
+        area = cv2.contourArea(contours[j]);
+        moments = cv2.moments(contours[j]);
         if moments["m00"] > 0:
             x = moments["m10"]/moments["m00"]
             y = moments["m01"]/moments["m00"]
-            return (round(x),round(y))
+            position = (round(x),round(y))
+            areas.append({'area':area, 'position':position})
+    
+    def ar(x):
+        return x['area']
+    def pos(x):
+        return x['position'][1]
+    
+    areas.sort(key=ar,reverse=True)
+    if (lower):
+        areas.sort(key=pos,reverse=True)
+
+    if len(areas) > 0:
+        return areas[0]["position"]
     
     return (-100,-100)
 
@@ -74,8 +80,8 @@ def changeValVar(x):
     valVar = x
 
 def adjustCenterPoint():
-    topWebcam = cv2.VideoCapture(0)
-    bottomWebcam = cv2.VideoCapture(2)
+    topWebcam = cv2.VideoCapture(2)
+    bottomWebcam = cv2.VideoCapture(0)
     cv2.imshow("blueDots",np.zeros((10,10)))
     cv2.createTrackbar('Hue','blueDots',hue,255,changeHue)
     cv2.createTrackbar('Sat','blueDots',sat,255,changeSat)
@@ -88,11 +94,11 @@ def adjustCenterPoint():
         isTrue,topFrame = topWebcam.read()
         isTrue,bottomFrame = bottomWebcam.read()
     
+        rubbish,heightCenter = findDotCenter(bottomFrame,testing=True,lower=True)
         editedFrame,center = findDotCenter(topFrame,testing=True)
 
-        cv2.imshow("TopFrame",editedFrame)
+        cv2.imshow("BottomFrame",rubbish)
         
-        rubbish,heightCenter = findDotCenter(bottomFrame,testing=True)
 
         print("Adjusting:",center,heightCenter)
 
@@ -109,7 +115,7 @@ def adjustCenterPoint():
 
     return center,heightCenter
 
-def findDotCenter(img,testing=False):
+def findDotCenter(img,testing=False,lower=False):
     
     # Konvertiere Kamera-Feed in HSV-Format
     imgHSV = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
@@ -120,7 +126,7 @@ def findDotCenter(img,testing=False):
     if testing:
         cv2.imshow("blueDots",blueDots)
    
-    center = extractMass(blueDots)
+    center = extractMass(blueDots,lower)
 
     # Center an der richtigen Stelle
     cv2.circle(img,center,6,(200,200,0),thickness=-1)
@@ -137,7 +143,7 @@ def findDotCenter(img,testing=False):
     skinColor = cv2.mean(img,mask)
     cv2.circle(img,center,int(innerRadius*0.5+outerRadius*0.5),skinColor,-1)
     if testing:
-        cv2.imshow("GrayScaleWithoutDot",img)
+        cv2.imshow("Without dot",img)
 
     return img,center
 

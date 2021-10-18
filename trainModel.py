@@ -15,11 +15,10 @@ local = False
 if platform.node()=="kubuntu20nico2":
     local = True
 
-run = wandb.init(job_type="model-training", config={"epochs":2000,"learning_rate":0.0000003})
+run = wandb.init(job_type="model-training", config={"epochs":1000,"learning_rate":0.0000003})
 
-modelName = "Sparta"
+modelName = "Arachne"
 trainingsetName = "Huegray160"
-#splitSettings = (.7,0,.3)
 
 # Load Model --------------------------------------------------------------------------------------------
 
@@ -71,7 +70,7 @@ labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 e = 0
 
 
-batch_size = 100;
+batch_size = 5000;
 
 while e < run.config["epochs"]:
     i = 0
@@ -103,22 +102,11 @@ print("\n Predictions:")
 print(predictions[:10,:])
 print("\n")
 
-# Prediction Quality on Training Set
-
-testInputs,testLabels = split.splitLabels(split.splitDataset(pictures,labels,mode="testing"))
-prediction = model(testInputs,testLabels)
-
-mse = tf.keras.losses.MeanSquaredError()
-quality = math.sqrt(mse(prediction,testLabels))
-
-#print(f"\n The networt predicts with {quality} pixels of accuracy.")
-
 # Save Model online and finish run –------------------------------------------------------------------------------------
 
 model.save("artifacts/"+modelName)
 
 modelArtifact = wandb.Artifact(modelName,type="model")
-modelArtifact.metadata = {"compressionType":"gray8045","lastQuality":quality}
 modelArtifact.add_dir("Models/"+modelName)
 
 run.log_artifact(modelArtifact)

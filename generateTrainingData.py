@@ -13,11 +13,11 @@ datasetName = "Huegray160"
 lastCenterPoint,lastHeightCenter = findDot.adjustCenterPoint()
 
 
-top = cv2.VideoCapture(0)
-bottom = cv2.VideoCapture(2)
+top = cv2.VideoCapture(2)
+bottom = cv2.VideoCapture(0)
 
 startTime = time.time()
-dauer = 1
+dauer = 60
 
 frames = []
 centerPoints = []
@@ -31,14 +31,16 @@ while time.time() - startTime < dauer:
         break
 
     editedFrame,center = findDot.findDotCenter(topFrame, testing=False)
-    rubbish, heightCenter = findDot.findDotCenter(bottomFrame,testing=False)
+    rubbish, heightCenter = findDot.findDotCenter(bottomFrame,testing=True,lower=True)
 
     cv2.imshow("editedFrame",editedFrame)
     cv2.imshow("bottomFrame",cv2.resize(bottomFrame,(320,240)))
     
-    print(time.time()-startTime,center,heightCenter)
+    print(time.time()-startTime,center,heightCenter,distance.distance(lastCenterPoint,center),distance.distance(lastHeightCenter,heightCenter))
 
-    if distance.distance(lastCenterPoint,center) + distance.distance(lastHeightCenter,heightCenter)/3> 60 or center[0] == -100:
+    if distance.distance(lastCenterPoint,center) > 40 or distance.distance(lastHeightCenter,heightCenter)> 25 or center[0] == -100:
+        print("Invalid position calculated.\n")
+        cv2.waitKey(1)
         continue
 
     # Add Frame without Point and found Centerpoint to their arrays
@@ -46,6 +48,7 @@ while time.time() - startTime < dauer:
     centerPoints.append([center[0],center[1],heightCenter[1]])
 
     lastCenterPoint = center
+    lastHeightCenter = heightCenter
     cv2.waitKey(1)
 
 frames = compressors.compressVideo(frames,compressor=compressor)
