@@ -15,7 +15,7 @@ if platform.node()=="kubuntu20nico2":
 
 modelName = "Arachne"
 datasetName = "Huegray160"
-epochs = 100
+epochs = 1000
 
 run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.0000003})
 
@@ -43,22 +43,41 @@ testPictures, testLabels = readDataset(datasetFolder+"/Testing")
 # Fit model to training data --------------------------------------------------------------------------------------------
 
 e = 0
-batch_size = 3000;
+batch_size = 1000;
 
 while e < run.config["epochs"]:
 
-    model.fit(x=trainingPictures,y=trainingLabels,batch_size=batch_size,verbose=1)
+    #model.fit(x=trainingPictures,y=trainingLabels,batch_size=batch_size,verbose=1)
+
+    i = 0
+    mse = []
+
+    while i < len(trainingPictures):
+        range = [i,i+batch_size]
+        
+        if i+batch_size > len(trainingPictures):
+            range[1]=len(trainingPictures)
+        currPictures = np.array(trainingPictures[range[0]:range[1]])
+        currLabels = np.array(trainingLabels[range[0]:range[1]])
+
+        i=i+batch_size
+        model.fit(x=currPictures,y=currLabels,verbose=1)
+        mse.append(model.history.history["mean_squared_error"][0])
+
+    #acc = model.history.history["mean_squared_error"][0]
+    acc = np.average(mse)
 
     if (e % 5 == 0):
-        acc = model.history.history["mean_squared_error"][0]
         testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
         wandb.log({"acc":acc,"test":testing})
     else :
-        wandb.log({"acc":model.history.history["mean_squared_error"][0]})
+        wandb.log({"acc":acc})
     
     e = e+1
     cv2.waitKey(1)
     
+    wandb.log({"acc":np.average(mse)})
+
 
 model.summary()
 
