@@ -11,9 +11,7 @@ shape = (120,160,2)
 
 dataset = wandb.Artifact(datasetName,type="dataset")
 
-for file in os.listdir("Datasets/" + datasetName):
-    print(file)
-    dataset.add_file("Datasets/" + datasetName + "/"+file)
+dataset.add_dir("Datasets/" + datasetName)
 
 dataset.metadata = {"compressor":compressor,"shape":shape}
 
