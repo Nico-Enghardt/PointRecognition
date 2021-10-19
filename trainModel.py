@@ -15,10 +15,12 @@ local = False
 if platform.node()=="kubuntu20nico2":
     local = True
 
-run = wandb.init(job_type="model-training", config={"epochs":1000,"learning_rate":0.0000003})
 
 modelName = "Arachne"
 trainingsetName = "Huegray160"
+epochs = 100
+
+run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.0000003})
 
 # Load Model --------------------------------------------------------------------------------------------
 
@@ -70,29 +72,33 @@ labels = labels[1:,:]  # Delete first row (random inintialisation of np.empty)
 e = 0
 
 
-batch_size = 5000;
+batch_size = 3000;
 
 while e < run.config["epochs"]:
-    i = 0
-    mse = []
 
-    while i < len(pictures):
-        range = [i,i+batch_size]
-        
-        if i+batch_size > len(pictures):
-            range[1]=len(pictures)
-        trainingInputs = np.array(pictures[range[0]:range[1]])
-        trainingLabels = np.array(labels[range[0]:range[1]])
+    model.fit(x=pictures,y=labels,batch_size=batch_size,verbose=1)
 
-        i=i+batch_size
-        model.fit(x=trainingInputs,y=trainingLabels,verbose=1)
-        mse.append(model.history.history["mean_squared_error"][0])
+    #i = 0
+    #mse = []
 
-    wandb.log({"acc":np.average(mse)})
+    #while i < len(pictures):
+    #    range = [i,i+batch_size]
+    #    
+    #    if i+batch_size > len(pictures):
+    #        range[1]=len(pictures)
+    #    trainingInputs = np.array(pictures[range[0]:range[1]])
+    #    trainingLabels = np.array(labels[range[0]:range[1]])
+    #
+    #    i=i+batch_size
+    #    model.fit(x=trainingInputs,y=trainingLabels,verbose=1)
+    #    mse.append(model.history.history["mean_squared_error"][0])
+
+    #wandb.log({"acc":np.average(mse)})
+    wandb.log({"acc":model.history.history["mean_squared_error"][0]})
+    e = e+1
+
+    cv2.waitKey(1)
     
-    key = cv2.waitKey(1)
-    if key == ord('q'):
-        break
 
 model.summary()
 
@@ -107,7 +113,7 @@ print("\n")
 model.save("artifacts/"+modelName)
 
 modelArtifact = wandb.Artifact(modelName,type="model")
-modelArtifact.add_dir("Models/"+modelName)
+modelArtifact.add_dir("artifacts/"+modelName)
 
 run.log_artifact(modelArtifact)
 
