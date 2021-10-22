@@ -6,32 +6,37 @@ import tensorflow as tf
 import numpy as np
 import cv2
 from readDataset import *
-
+import loss
+import createModelArtifact as createModel
 
 local = False
 if platform.node()=="kubuntu20nico2":
     local = True
 
 
-modelName = "Arachne"
+modelName = None
 datasetName = "Huegray160"
 epochs = 1000
 
 run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.0000003})
 
-# Load Model --------------------------------------------------------------------------------------------
-
-modelArtifact = run.use_artifact(modelName+":latest")
-model_directory = modelArtifact.download()
-
-if local:
-    model_directory = "./Models/"+modelName
-
-model = tf.keras.models.load_model(model_directory)
-
-# Load and prepare Training Data -------------------------------------------------------------------------------------------------
+# Define DatasetArtifact
 
 datasetArtifact = run.use_artifact(datasetName+":latest")
+
+# Load Model --------------------------------------------------------------------------------------------
+
+if modelName:
+
+    modelArtifact = run.use_artifact(modelName+":latest")
+    model_directory = modelArtifact.download()
+
+    model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
+
+else:
+    model, imageShape = createModel.createModel((4000,1000,100),datasetArtifact,run.config["learning_rate"])
+
+# Load and prepare Training Data -------------------------------------------------------------------------------------------------
 
 datasetFolder = "Datasets/"+datasetName
 if not local:
@@ -50,7 +55,7 @@ while e < run.config["epochs"]:
     #model.fit(x=trainingPictures,y=trainingLabels,batch_size=batch_size,verbose=1)
 
     i = 0
-    mse = []
+    metrics = []
 
     while i < len(trainingPictures):
         range = [i,i+batch_size]
@@ -62,21 +67,23 @@ while e < run.config["epochs"]:
 
         i=i+batch_size
         model.fit(x=currPictures,y=currLabels,verbose=1)
-        mse.append(model.history.history["mean_squared_error"][0])
+        
+        currMetrics = model.history.history
+
+        metrics.append([currMetrics["loss"][0],currMetrics["heightError"][0],currMetrics["planeError"][0]])
 
     #acc = model.history.history["mean_squared_error"][0]
-    acc = np.average(mse)
+    metrics = np.average(metrics,axis=0)
 
-    if (e % 5 == 0):
-        testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
-        wandb.log({"acc":acc,"test":testing})
-    else :
-        wandb.log({"acc":acc})
+    #if (e % 5 == 0):
+    #    testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
+    #    wandb.log({"loss":metrics[0],"test":testing})
+    #else :
+    wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2]})
     
     e = e+1
     cv2.waitKey(1)
     
-    wandb.log({"acc":np.average(mse)})
 
 
 model.summary()
