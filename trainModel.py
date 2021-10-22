@@ -48,7 +48,7 @@ testPictures, testLabels = readDataset(datasetFolder+"/Testing")
 # Fit model to training data --------------------------------------------------------------------------------------------
 
 e = 0
-batch_size = 1000;
+batch_size = 2000;
 
 while e < run.config["epochs"]:
 
@@ -75,11 +75,11 @@ while e < run.config["epochs"]:
     #acc = model.history.history["mean_squared_error"][0]
     metrics = np.average(metrics,axis=0)
 
-    #if (e % 5 == 0):
-    #    testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
-    #    wandb.log({"loss":metrics[0],"test":testing})
-    #else :
-    wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2]})
+    if (e % 5 == 0):
+        testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
+        wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2],"testLoss":testing})
+    else :
+        wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2]})
     
     e = e+1
     cv2.waitKey(1)
