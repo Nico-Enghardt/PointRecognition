@@ -15,6 +15,7 @@ if platform.node()=="kubuntu20nico2":
 
 
 modelName = None
+architecture = (4000,1000,100)
 datasetName = "Huegray160"
 epochs = 1000
 
@@ -34,7 +35,7 @@ if modelName:
     model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
 
 else:
-    model, imageShape = createModel.createModel((4000,1000,100),datasetArtifact,run.config["learning_rate"])
+    model, imageShape = createModel.createModel(architecture,datasetArtifact,run.config["learning_rate"])
 
 # Load and prepare Training Data -------------------------------------------------------------------------------------------------
 
