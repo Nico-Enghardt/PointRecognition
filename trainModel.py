@@ -52,7 +52,7 @@ e = 0
 batch_size = 2000;
 
 while e < run.config["epochs"]:
-
+    print("Epoch: "+ str(e))
     #model.fit(x=trainingPictures,y=trainingLabels,batch_size=batch_size,verbose=1)
 
     i = 0
@@ -71,17 +71,16 @@ while e < run.config["epochs"]:
         
         currMetrics = model.history.history
 
-        metrics.append([currMetrics["loss"][0],currMetrics["heightError"][0],currMetrics["planeError"][0]])
+        metrics.append([currMetrics["loss"][0],currMetrics["loss3D"][0],currMetrics["heightError"][0],currMetrics["planeError"][0]])
 
     #acc = model.history.history["mean_squared_error"][0]
     metrics = np.average(metrics,axis=0)
+    wandb.log({"loss":metrics[0],"acc3D":metrics[1],"heightError":metrics[2],"planeError":metrics[3]})
 
     if (e % 5 == 0):
-        testing = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)[0]
-        wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2],"testLoss":testing})
-    else :
-        wandb.log({"loss":metrics[0],"heightError":metrics[1],"planeError":metrics[2]})
-    
+        metrics = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)
+        wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[1],"testPlaneError":metrics[2]},commit=False)
+        
     e = e+1
     cv2.waitKey(1)
     

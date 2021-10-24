@@ -20,12 +20,12 @@ def createModel(architecture,datasetArtifact,learningRate):
 
     model.add(tf.keras.layers.InputLayer(input_shape=imageShape))
     for layerSize in architecture:
-        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(0.01),
+        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(0.001),
 ))
     model.add(tf.keras.layers.Dense(3,bias_initializer=tf.keras.initializers.RandomNormal(mean=400,stddev=100)))
 
     customLoss = loss.loss3D
-    customMetrics = [loss.heightError,loss.planeError]
+    customMetrics = [loss.loss3D,loss.heightError,loss.planeError]
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learningRate),loss=customLoss,metrics=customMetrics)
     model.build()
