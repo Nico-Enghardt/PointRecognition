@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import skvideo.io
+import random
 
 def readDataset(path):
 
@@ -26,4 +27,6 @@ def readDataset(path):
             ##if local:
             ##    break;
 
+    random.shuffle(pictures)
+    
     return np.array(pictures), labels[1:,:]  # Delete first row (random inintialisation of np.empty), # Convert both arrays to numpy format
