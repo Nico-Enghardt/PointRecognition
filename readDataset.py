@@ -22,7 +22,10 @@ def readDataset(path):
             print(len(pictures))
         
         if format=="npy":
-            labels = np.concatenate((labels,np.load(path+"/"+file)))
+            coordinates = np.load(path+"/"+file)
+            ys = coordinates[:,2]
+            coordinates[:,2] = ys - np.min(ys)
+            labels = np.concatenate((labels,))
 
 
     random.shuffle(pictures)
