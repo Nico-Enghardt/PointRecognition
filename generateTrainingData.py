@@ -17,7 +17,7 @@ top = cv2.VideoCapture(2)
 bottom = cv2.VideoCapture(0)
 
 startTime = time.time()
-dauer = 60
+dauer = 30
 
 frames = []
 centerPoints = []
@@ -32,13 +32,15 @@ while time.time() - startTime < dauer:
 
     editedFrame,center = findDot.findDotCenter(topFrame, testing=False)
     rubbish, heightCenter = findDot.findDotCenter(bottomFrame,testing=True,lower=True)
+    editedFrame = cv2.circle(editedFrame,lastCenterPoint,5,(0,200,100),-1)
+    bottomFrame = cv2.circle(bottomFrame,lastHeightCenter,5,(0,200,100),-1)
 
     cv2.imshow("editedFrame",editedFrame)
     cv2.imshow("bottomFrame",cv2.resize(bottomFrame,(320,240)))
     
     print(time.time()-startTime,center,heightCenter,distance.distance(lastCenterPoint,center),distance.distance(lastHeightCenter,heightCenter))
 
-    if distance.distance(lastCenterPoint,center) > 40 or distance.distance(lastHeightCenter,heightCenter)> 25 or center[0] == -100:
+    if distance.distance(lastCenterPoint,center) > 60 or distance.distance(lastHeightCenter,heightCenter)> 40 or center[0] == -100:
         print("Invalid position calculated.\n")
         cv2.waitKey(1)
         continue

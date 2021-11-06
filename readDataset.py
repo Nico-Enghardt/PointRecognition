@@ -24,9 +24,21 @@ def readDataset(path):
         if format=="npy":
             labels = np.concatenate((labels,np.load(path+"/"+file)))
 
-            ##if local:
-            ##    break;
 
     random.shuffle(pictures)
     
     return np.array(pictures), labels[1:,:]  # Delete first row (random inintialisation of np.empty), # Convert both arrays to numpy format
+
+def readDatasetSize(path):
+    files = os.listdir(path);
+
+    labels = np.empty((1,3))
+
+    for file in files:
+    
+        format = file[-3:]
+        
+        if format=="npy":
+            labels = np.concatenate((labels,np.load(path+"/"+file)))
+
+    return labels.shape[0]
