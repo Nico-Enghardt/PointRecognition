@@ -79,7 +79,7 @@ while e < run.config["epochs"]:
 
     if (e % 5 == 0):
         metrics = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)
-        wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[1],"testPlaneError":metrics[2]},commit=False)
+        wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[2],"testPlaneError":metrics[3]},commit=False)
         
     e = e+1
     cv2.waitKey(1)
