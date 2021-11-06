@@ -49,7 +49,7 @@ testPictures, testLabels = readDataset(datasetFolder+"/Testing")
 # Fit model to training data --------------------------------------------------------------------------------------------
 
 e = 0
-batch_size = 1600;
+batch_size = 3000;
 
 while e < run.config["epochs"]:
     print("Epoch: "+ str(e))
