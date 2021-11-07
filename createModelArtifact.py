@@ -9,7 +9,7 @@ import loss
 
 
 
-def createModel(architecture,datasetArtifact,learningRate):
+def createModel(architecture,datasetArtifact,learningRate,regularization_factor):
 
     # Get Input shape from datset Artifact
     imageShape = datasetArtifact.metadata["shape"]
@@ -20,7 +20,7 @@ def createModel(architecture,datasetArtifact,learningRate):
 
     model.add(tf.keras.layers.InputLayer(input_shape=imageShape))
     for layerSize in architecture:
-        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(0.1),
+        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(regularization_factor),
 ))
     model.add(tf.keras.layers.Dense(3,bias_initializer=tf.keras.initializers.RandomNormal(mean=400,stddev=100)))
 
@@ -46,8 +46,9 @@ if __name__ == '__main__':
 
     learningRate = 0.0000003;
     architecture = (3600,1000,10)
+    regularization_factor = 0.1
 
-    model,imageShape = createModel(architecture,datasetArtifact,learningRate)    
+    model,imageShape = createModel(architecture,datasetArtifact,learningRate,regularization_factor)    
 
     modelArtifact = wandb.Artifact(modelName,type="model",description=str(architecture))
     model.save("Models/"+modelName)

@@ -15,11 +15,14 @@ if platform.node()=="kubuntu20nico2":
 
 
 modelName = None
-architecture = (4000,1000,100)
 datasetName = "Huegray160"
-epochs = 1000
+architecture = (4000,1000,100)
+max_epochs = 1000
+batch_size = 3000;
+regularization_factor = 0.1
+learning_rate = 0.000001
 
-run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.000001})
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture})
 
 # Define DatasetArtifact
 
@@ -35,7 +38,7 @@ if modelName:
     model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
 
 else:
-    model, imageShape = createModel.createModel(architecture,datasetArtifact,run.config["learning_rate"])
+    model, imageShape = createModel.createModel(architecture,datasetArtifact,run.config["learning_rate"],regularization_factor)
 
 # Load and prepare Training Data -------------------------------------------------------------------------------------------------
 
@@ -49,9 +52,8 @@ testPictures, testLabels = readDataset(datasetFolder+"/Testing")
 # Fit model to training data --------------------------------------------------------------------------------------------
 
 e = 0
-batch_size = 3000;
 
-while e < run.config["epochs"]:
+while e < max_epochs:
     print("Epoch: "+ str(e))
     #model.fit(x=trainingPictures,y=trainingLabels,batch_size=batch_size,verbose=1)
 
@@ -80,6 +82,7 @@ while e < run.config["epochs"]:
     if (e % 5 == 0):
         metrics = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)
         wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[2],"testPlaneError":metrics[3]},commit=False)
+        run.config["epochs"] = e;
         
     e = e+1
     
