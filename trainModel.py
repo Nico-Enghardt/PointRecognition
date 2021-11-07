@@ -22,7 +22,7 @@ batch_size = 3000;
 regularization_factor = 0.1
 learning_rate = 0.000001
 
-run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture},allow_val_change=True)
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture})
 
 # Define DatasetArtifact
 
@@ -82,7 +82,6 @@ while e < max_epochs:
     if (e % 5 == 0):
         metrics = model.evaluate(x=testPictures,y=testLabels,batch_size=batch_size,verbose=2)
         wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[2],"testPlaneError":metrics[3]},commit=False)
-        run.config["epochs"] = e;
         
     e = e+1
     
