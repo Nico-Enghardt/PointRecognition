@@ -82,7 +82,6 @@ while e < run.config["epochs"]:
         wandb.log({"testLoss":metrics[0],"testAcc3D":metrics[1],"testHeightError":metrics[2],"testPlaneError":metrics[3]},commit=False)
         
     e = e+1
-    cv2.waitKey(1)
     
 
 
