@@ -20,7 +20,7 @@ def createModel(architecture,datasetArtifact,learningRate):
 
     model.add(tf.keras.layers.InputLayer(input_shape=imageShape))
     for layerSize in architecture:
-        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(0.005),
+        model.add(tf.keras.layers.Dense(layerSize,kernel_regularizer=tf.keras.regularizers.L1(0.02),
 ))
     model.add(tf.keras.layers.Dense(3,bias_initializer=tf.keras.initializers.RandomNormal(mean=400,stddev=100)))
 

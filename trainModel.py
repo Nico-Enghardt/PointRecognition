@@ -19,7 +19,7 @@ architecture = (4000,1000,100)
 datasetName = "Huegray160"
 epochs = 1000
 
-run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.0000003})
+run = wandb.init(job_type="model-training", config={"epochs":epochs,"learning_rate":0.0000005})
 
 # Define DatasetArtifact
 
