@@ -22,7 +22,7 @@ batch_size = 3000;
 regularization_factor = 0.1
 learning_rate = 0.000001
 
-run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture})
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture},allow_val_change=True)
 
 # Define DatasetArtifact
 
