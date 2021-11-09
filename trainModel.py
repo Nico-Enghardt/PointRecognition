@@ -8,6 +8,7 @@ import cv2
 from readDataset import *
 import loss
 import createModelArtifact as createModel
+import time
 
 local = False
 if platform.node()=="kubuntu20nico2":
@@ -17,12 +18,13 @@ if platform.node()=="kubuntu20nico2":
 modelName = None
 datasetName = "Huegray160"
 architecture = (4000,1000,100)
-max_epochs = 1000
-batch_size = 3000
-regularization_factor =  2
+max_epochs = 750
+batch_size = 2800
+regularization_factor =  0.5
 learning_rate = 0.000001
+shuffling = True;
 
-run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture})
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
 # Define DatasetArtifact
 
@@ -48,6 +50,20 @@ if not local:
 
 trainingPictures,trainingLabels = readDataset(datasetFolder+"/Training")
 testPictures, testLabels = readDataset(datasetFolder+"/Testing")
+
+
+pictures = np.concatenate((trainingPictures,testPictures))
+labels = np.concatenate((trainingLabels,testLabels))
+
+seed = time.time()  # Set a random seed
+print(random.Random(seed).randint(1,10))
+random.Random(seed).shuffle(pictures)  # Shuffle according to seed
+random.Random(seed).shuffle(labels)
+print(random.Random(seed).randint(1,10))
+split = int(0.8*len(pictures))
+
+trainingPictures,testPictures = pictures[:split,:],pictures[split:,:]
+trainingLabels,testLabels = labels[:split,:],labels[split:,:]
 
 # Fit model to training data --------------------------------------------------------------------------------------------
 
