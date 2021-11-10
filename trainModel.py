@@ -23,6 +23,7 @@ batch_size = 2800
 regularization_factor =  0.5
 learning_rate = 0.000001
 shuffling = True;
+percentageDataset = 0.5;
 
 run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
@@ -56,14 +57,17 @@ pictures = np.concatenate((trainingPictures,testPictures))
 labels = np.concatenate((trainingLabels,testLabels))
 
 seed = time.time()  # Set a random seed
-print(random.Random(seed).randint(1,10))
 random.Random(seed).shuffle(pictures)  # Shuffle according to seed
 random.Random(seed).shuffle(labels)
-print(random.Random(seed).randint(1,10))
-split = int(0.8*len(pictures))
 
-trainingPictures,testPictures = pictures[:split,:],pictures[split:,:]
-trainingLabels,testLabels = labels[:split,:],labels[split:,:]
+splitTraining = int(0.8*len(pictures)*percentageDataset)
+splitTesting = splitTraining + int(0.2*len(pictures)*percentageDataset)
+
+trainingPictures,testPictures = pictures[:splitTraining,:],pictures[splitTraining:splitTesting,:]
+trainingLabels,testLabels = labels[:splitTraining,:],labels[splitTraining:splitTesting,:]
+
+run.config["trainingExamples"] = trainingLabels.shape[0];
+run.config["testExamples"] = testLabels.shape[0];
 
 # Fit model to training data --------------------------------------------------------------------------------------------
 
