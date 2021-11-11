@@ -19,13 +19,13 @@ modelName = None
 datasetName = "Huegray160"
 architecture = (4000,1000,100)
 max_epochs = 750
-batch_size = 2800
+batch_fraction = 1/3
 regularization_factor =  0.5
 learning_rate = 0.000001
 shuffling = True;
-percentageDataset = 0.8;
+percentageDataset = 1;
 
-run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch_fraction":batch_fraction,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
 # Define DatasetArtifact
 
@@ -72,6 +72,8 @@ run.config["testExamples"] = testLabels.shape[0];
 # Fit model to training data --------------------------------------------------------------------------------------------
 
 e = 0
+batch_size = int(batch_fraction*trainingPictures.shape[0])
+run.config["batch-size"] = batch_size;
 
 while e < max_epochs:
     print("Epoch: "+ str(e))
