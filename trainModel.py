@@ -23,7 +23,7 @@ batch_size = 2800
 regularization_factor =  0.5
 learning_rate = 0.000001
 shuffling = True;
-percentageDataset = 0.5;
+percentageDataset = 0.8;
 
 run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch-size":batch_size,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
