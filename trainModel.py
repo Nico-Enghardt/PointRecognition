@@ -19,11 +19,11 @@ modelName = None
 datasetName = "Huegray160"
 architecture = (4000,1000,100)
 max_epochs = 750
-batch_fraction = 1/3
+batch_fraction = 1/2
 regularization_factor =  0.5
 learning_rate = 0.000001
 shuffling = True;
-percentageDataset = 1;
+percentageDataset = .8;
 
 run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch_fraction":batch_fraction,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
