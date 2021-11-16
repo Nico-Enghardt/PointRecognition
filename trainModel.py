@@ -18,12 +18,12 @@ if platform.node()=="kubuntu20nico2":
 modelName = None
 datasetName = "Huegray160"
 architecture = (4000,1000,100)
-max_epochs = 750
+max_epochs = 900
 batch_fraction = 1/2
 regularization_factor =  0.5
 learning_rate = 0.000001
-shuffling = True;
-percentageDataset = .8;
+shuffling = False;
+percentageDataset = 1;
 
 run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch_fraction":batch_fraction,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
 
@@ -118,6 +118,8 @@ print(predictions[:10,:])
 print("\n")
 
 # Save Model online and finish run –------------------------------------------------------------------------------------
+
+modelName = "radiantFirework"
 
 model.save("artifacts/"+modelName)
 
