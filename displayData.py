@@ -3,58 +3,106 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import wandb
 import numpy as np
 import cv2
-from PIL import Image
 import tensorflow as tf
+import loss
+from readDataset import *
+import shutil
 
 def drawCross(image,position,color=(237, 74, 28)):
     cv2.line(image,(position[0]-10,position[1]-10),(position[0]+10,position[1]+10),color)
     cv2.line(image,(position[0]+10,position[1]-10),(position[0]-10,position[1]+10),color)
     return image
 
-model = tf.keras.models.load_model('Models/LastModel')
-model.summary()
 
-run = wandb.init(
-    project="ManusDisplay"
+modelName = "radiantFirework"
+datasetName = "Huegray160"
+
+run = wandb.init(job_type = "performance-evaluation",
+    project="PointRecognition",
     )
 
-dataset = np.load("Data/Training/08-31--15:06.11.npy")
+modelArtifact = run.use_artifact(modelName+":latest")
+model_directory = modelArtifact.download()
+model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
 
-y = dataset[:,:2]
-X = dataset[:,2:]
+datasetFolder = "Datasets/" + datasetName + "/Testing"
 
-X = np.int32(X)
-
-predictions = model.predict(X)
-predictions = np.array(predictions,dtype='int')
-X = np.uint8(X)
+files = os.listdir(datasetFolder);
 
 collection = []
+os.mkdir("Datasets/Temp")
 
-for imageNr in range(len(X)):
-    array = X[imageNr]
+for file in files:
+        
+    # Features to record:
+    # modelName and datasetName
+    # Performance Measures
+    # all three Videos
     
-    img = np.reshape(array,(45,80))
-    cv2.imshow("Image",img)
+    if file[-3:] == "npy": continue
+    else: file = file[:-3]    
+    
+    testPictures = loadVideo(datasetFolder+"/"+file+"mp4",flatten=False)
+    testLabels = loadNumpy(datasetFolder+"/"+file+"npy")
 
-    upscaled = cv2.resize(img,(640,460))
+    shape = testPictures.shape
+    testPicturesFlat = np.reshape(testPictures,(shape[0],shape[1]*shape[2]*shape[3]))
+    
+    # Evaluate Model
+    
+    metrics = model.evaluate(x=testPicturesFlat,y=testLabels)    
+    
+    # Video reformation and tag data to video
+    
+    predictions = model.predict(testPicturesFlat)
+    predictions = np.array(predictions,dtype='int')
+    
+    video = []
+    
+    for i in range(testPictures.shape[0]): # Jedes Bild im Video bearbeiten
+        
+        # Reconstruct original image
+        
+        hue = testPictures[i,:,:,0]
+        gray = testPictures[i,:,:,1]
+        third = np.ones(hue.shape,dtype="float32") * 100
+        
+        combination = np.stack((hue,gray,third),axis=2)
+        
+        frame = cv2.cvtColor(combination,cv2.COLOR_HLS2RGB)
+        
+        w,h = 160*2,120*2
+        
+        frame = cv2.resize(frame,(w,h))
+        
+        # Tag data to Video
+        
+        truePosition = np.array(testLabels[i,:],"int32")
+        predPosition = np.array(predictions[i,:],"int32")
+        
+        trueCross = truePosition[0:2] * 2
+        predCross = predPosition[0:2] * 2
+        
+        frame = drawCross(frame,trueCross)
+        frame = drawCross(frame,predCross,color=(0,0,0))
+                          
+        video.append(frame)
+        
+        cv2.imshow("Frame",frame)
+        cv2.waitKey(3)
+        
+    video = np.array(video)
+    skvideo.io.vwrite("Datasets/Temp/Temp"+str(i)+".mp4",video)
+    
+    wandbVideo = wandb.Video("Datasets/Temp/Temp"+str(i)+".mp4")
 
-    upscaled = cv2.cvtColor(upscaled,cv2.COLOR_GRAY2BGR)
-
-    upscaled = drawCross(upscaled,(y[imageNr,0],y[imageNr,1]))
-
-    print(predictions[imageNr])
-    upscaled = drawCross(upscaled,(predictions[imageNr,0],predictions[imageNr,1]),color=(0,250,75))
-
-    cv2.imshow("Upscaled",upscaled)
-
-
-    wandbImg = wandb.Image(Image.fromarray(img)) #jpg)
-    wandbUpscaled = wandb.Image(Image.fromarray(upscaled))
-    collection.append([imageNr,wandbImg,wandbUpscaled])
-    cv2.waitKey(1)
-
-pictureDisplay = wandb.Table(columns=["count","Original","Solution"],data=collection)
-run.log({"PictureDisplay":pictureDisplay})
+    collection.append([metrics[1],metrics[2],metrics[3],wandbVideo,modelName,datasetName])
+    print(collection)
+       
+    
+videoDisplay = wandb.Table(columns=["testAcc3D","testHeightError","testPlaneError","resultVideo","modelName","datasetName"],data=collection)
+run.log({"VideoDisplay":videoDisplay})
 
 wandb.finish()
+
+os.rmdir("Datasets/Temp",)

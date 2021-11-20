@@ -49,8 +49,8 @@ datasetFolder = "Datasets/"+datasetName
 if not local:
     datasetFolder = datasetArtifact.download()
 
-trainingPictures,trainingLabels = readDataset(datasetFolder+"/Training")
-testPictures, testLabels = readDataset(datasetFolder+"/Testing")
+trainingPictures,trainingLabels = readDatasetTraining(datasetFolder+"/Training",shuffling)
+testPictures, testLabels = readDatasetTraining(datasetFolder+"/Testing",shuffling)
 
 
 pictures = np.concatenate((trainingPictures,testPictures))
@@ -97,7 +97,6 @@ while e < max_epochs:
 
         metrics.append([currMetrics["loss"][0],currMetrics["loss3D"][0],currMetrics["heightError"][0],currMetrics["planeError"][0]])
 
-    #acc = model.history.history["mean_squared_error"][0]
     metrics = np.average(metrics,axis=0)
     wandb.log({"loss":metrics[0],"acc3D":metrics[1],"heightError":metrics[2],"planeError":metrics[3]})
 
