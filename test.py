@@ -16,6 +16,7 @@ while i<300:
     i = i+1
     print(i)
 
+print("Hello.")
 
 images = np.array(images)
 
