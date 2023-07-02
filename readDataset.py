@@ -1,21 +1,51 @@
 import os
 import numpy as np
+import skvideo
+skvideo.setFFmpegPath("C:/Programme/ffmpeg/bin")
 import skvideo.io
 import random
+import time
 
-def readDatasetTraining(path,shuffling,onlyFile=False):
+def readDatasetTraining(path,shuffleMode="shuffleBatches",percentageDataset=1,onlyFile=False):
+    
+    trainingPictures,trainingLabels = readFromFolder(path + "/Training")
+    testPictures,testLabels = readFromFolder(path + "/Testing")
+    
+    seed = time.time()  # Set a random seed
+    
+    if shuffleMode == "shuffleDataset":
+        pictures = np.concatenate((trainingPictures,testPictures))
+        labels = np.concatenate((trainingLabels,testLabels))
 
-    if not onlyFile: files = os.listdir(path);
-    else: 
-        files = [path]
+        random.Random(seed).shuffle(pictures)  # Shuffle according to seed
+        random.Random(seed).shuffle(labels)
+        
+        split = int(0.8 * len(pictures))
+        
+        trainingPictures, testPictures = pictures[:split,:],pictures[split:,:]
+        trainingLabels, testLabels = labels[:split,:],labels[split:,:]
+     
+        
+    elif shuffleMode == "shuffleBatches":
+        random.Random(seed).shuffle(trainingPictures)
+        random.Random(seed).shuffle(trainingLabels)
+        
+    splitPercentage = int(len(trainingPictures)*percentageDataset)
+
+    trainingPictures,trainingLabels = pictures[:splitPercentage,:], labels[:splitPercentage,:]
+
+    return trainingPictures,trainingLabels,testPictures,testLabels
+
+def readFromFolder(path):
+
+    files = os.listdir(path); 
         
     pictures = np.empty((1,38400))
     labels = np.empty((1,3))
 
     for file in files:
 
-        if not onlyFile: pathToFile = path+"/"+file
-        else: pathToFile = files[0]
+        pathToFile = path+"/"+file
 
         format = file[-3:]
 
@@ -29,6 +59,7 @@ def readDatasetTraining(path,shuffling,onlyFile=False):
     #if shuffling: random.shuffle(pictures)
     
     return pictures[1:,:], labels[1:,:]  # Delete first row (random inintialisation of np.empty), # Convert both arrays to numpy format
+    
 
 def loadVideo(pathToFile,flatten=True):
     pictures = []

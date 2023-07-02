@@ -6,7 +6,6 @@ import cv2
 import tensorflow as tf
 import loss
 from readDataset import *
-import shutil
 
 def drawCross(image,position,color=(237, 74, 28)):
     cv2.line(image,(position[0]-10,position[1]-10),(position[0]+10,position[1]+10),color)
@@ -14,8 +13,10 @@ def drawCross(image,position,color=(237, 74, 28)):
     return image
 
 
+# Different versions: 1. Saving to WandB, 2. Only look at dataset (not Model), 3. Show locally, slow and fast
+
 modelName = "radiantFirework"
-datasetName = "Huegray160"
+datasetName = "Hsv60"
 
 run = wandb.init(job_type = "performance-evaluation",
     project="PointRecognition",
@@ -25,12 +26,14 @@ modelArtifact = run.use_artifact(modelName+":latest")
 model_directory = modelArtifact.download()
 model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
 
-datasetFolder = "Datasets/" + datasetName + "/Testing"
+datasetArtifact = run.use_artifact(datasetName+":latest")
+dataset_directory = datasetArtifact.download()
+datasetFolder = dataset_directory
 
 files = os.listdir(datasetFolder);
 
 collection = []
-os.mkdir("Datasets/Temp")
+os.makedirs("Datasets/Temp", exist_ok=True)
 
 for file in files:
         
@@ -89,7 +92,7 @@ for file in files:
         video.append(frame)
         
         cv2.imshow("Frame",frame)
-        cv2.waitKey(3)
+        cv2.waitKey(0)
         
     video = np.array(video)
     skvideo.io.vwrite("Datasets/Temp/Temp"+str(i)+".mp4",video)

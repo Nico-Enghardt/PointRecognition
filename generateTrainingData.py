@@ -7,8 +7,8 @@ import distance
 import compressors
 import skvideo.io
 
-compressor = "huegray160"
-datasetName = "Huegray160"
+compressor = "hsv160"
+datasetName = "Hsv160"
 
 lastCenterPoint,lastHeightCenter = findDot.adjustCenterPoint()
 

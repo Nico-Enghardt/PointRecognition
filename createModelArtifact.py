@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 import loss
 
-
+# Change and extend to provideModel.py
 
 
 

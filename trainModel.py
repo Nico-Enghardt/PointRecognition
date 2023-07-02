@@ -4,11 +4,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import wandb
 import tensorflow as tf
 import numpy as np
-import cv2
 from readDataset import *
 import loss
-import createModelArtifact as createModel
-import time
+import createModelArtifact
 
 local = False
 if platform.node()=="kubuntu20nico2":
@@ -22,10 +20,10 @@ max_epochs = 900
 batch_fraction = 1/2
 regularization_factor =  0.5
 learning_rate = 0.000001
-shuffling = False;
+shuffleMode = None;
 percentageDataset = 1;
 
-run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch_fraction":batch_fraction,"regularization":regularization_factor,"architecture":architecture,"shuffling":shuffling})
+run = wandb.init(job_type="model-training", config={"epochs":0,"learning_rate":learning_rate,"batch_fraction":batch_fraction,"regularization":regularization_factor,"architecture":architecture,"shuffleMode":shuffleMode})
 
 # Define DatasetArtifact
 
@@ -41,7 +39,7 @@ if modelName:
     model = tf.keras.models.load_model(model_directory,custom_objects={"loss3D":loss.loss3D,"heightError":loss.heightError,"planeError":loss.planeError})
 
 else:
-    model, imageShape = createModel.createModel(architecture,datasetArtifact,run.config["learning_rate"],regularization_factor)
+    model, imageShape = createModelArtifact.createModel(architecture,datasetArtifact,run.config["learning_rate"],regularization_factor)
 
 # Load and prepare Training Data -------------------------------------------------------------------------------------------------
 
@@ -49,22 +47,7 @@ datasetFolder = "Datasets/"+datasetName
 if not local:
     datasetFolder = datasetArtifact.download()
 
-trainingPictures,trainingLabels = readDatasetTraining(datasetFolder+"/Training",shuffling)
-testPictures, testLabels = readDatasetTraining(datasetFolder+"/Testing",shuffling)
-
-
-pictures = np.concatenate((trainingPictures,testPictures))
-labels = np.concatenate((trainingLabels,testLabels))
-
-seed = time.time()  # Set a random seed
-random.Random(seed).shuffle(pictures)  # Shuffle according to seed
-random.Random(seed).shuffle(labels)
-
-splitTraining = int(0.8*len(pictures)*percentageDataset)
-splitTesting = splitTraining + int(0.2*len(pictures)*percentageDataset)
-
-trainingPictures,testPictures = pictures[:splitTraining,:],pictures[splitTraining:splitTesting,:]
-trainingLabels,testLabels = labels[:splitTraining,:],labels[splitTraining:splitTesting,:]
+trainingPictures,trainingLabels,testPictures,testLabels = readDatasetTraining(datasetFolder,shuffleMode)
 
 run.config["trainingExamples"] = trainingLabels.shape[0];
 run.config["testExamples"] = testLabels.shape[0];

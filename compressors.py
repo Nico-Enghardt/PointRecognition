@@ -24,8 +24,8 @@ def compress(picture,compressor):
     if(compressor=="gray8045"):
         return COMPgray8045(picture)
 
-    if(compressor=="huegray160"):
-        return COMPhuegray160(picture)
+    if(compressor=="hsv160"):
+        return COMPhsv160(picture)
 
     if(compressor=="hsv"):
         return COMPhsv(picture)
@@ -37,13 +37,12 @@ def COMPgray8045(picture): # Remove color channels, reduce size to 80x45, flatte
     smallMatrix = cv2.resize(matrix,(80,45))
     return smallMatrix.flatten()
     
-def COMPhuegray160(picture): # Reduce size to 160x120, only use hue and grayscale values (leave saturation), flatten out matrix to array
+def COMPhsv160(picture): # Reduce size to 160x120, only use hue and grayscale values (leave saturation), flatten out matrix to array
     
     resized = cv2.resize(picture,(160,120))
-    gray = cv2.cvtColor(resized,cv2.COLOR_BGR2GRAY)
     hsv = cv2.cvtColor(resized,cv2.COLOR_BGR2HSV)
 
-    return np.stack((hsv[:,:,0],gray),axis=-1)
+    return hsv
 
 def COMPhsv(picture):
 
@@ -56,7 +55,7 @@ def size(compressor_type,training):
     if(compressor_type=="gray8045"):
         pixels = 80*45
 
-    if(compressor_type=="huegray160"):
+    if(compressor_type=="hsv160"):
         pixels = 160*120
 
     if(compressor_type=="hsv"):

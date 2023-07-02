@@ -6,13 +6,11 @@ from readDataset import readDatasetSize
 
 run = wandb.init(project="PointRecognition",job_type="dataset-creation")
 
-datasetName = "Huegray160"
+datasetName = "Hsv160"
 path = "Datasets/" + datasetName
 
-
-compressor = "huegray160"
+compressor = "hsv160"
 shape = (120,160,2)
-
 
 trainingSize = readDatasetSize(path+"/Training");
 testingSize = readDatasetSize(path+"/Testing");
