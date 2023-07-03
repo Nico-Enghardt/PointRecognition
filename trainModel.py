@@ -12,7 +12,7 @@ local = False
 if platform.node()=="kubuntu20nico2":
     local = True
 
-
+ 
 modelName = None
 datasetName = "Huegray160"
 architecture = (4000,1000,100)

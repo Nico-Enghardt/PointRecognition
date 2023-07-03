@@ -30,7 +30,7 @@
      inkscape:snap-global="false"
      inkscape:zoom="0.64052329"
      inkscape:cx="864.91781"
-     inkscape:cy="468.36705"
+     inkscape:cy="469.92827"
      inkscape:current-layer="g12409"
      showguides="false"
      fit-margin-top="0"
@@ -67,6 +67,16 @@
      transform="translate(215.47075,-29.345394)">
     <g
        id="g12409">
+      <rect
+         style="fill:#4d4d4d;stroke-width:0.128379;stroke-linecap:round"
+         id="rect446"
+         width="389.94159"
+         height="200.34076"
+         x="-222.493"
+         y="15.713961"
+         inkscape:export-filename="PointRecognition-Process.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
       <g
          id="g51658"
          transform="matrix(0.99998022,0,0,0.9999976,11.698359,-14.312163)"
@@ -278,10 +288,10 @@
            transform="matrix(0.20929564,0,0,0.20929564,-237.67399,8.564533)"><tspan
              x="296.57928"
              y="556.70117"
-             id="tspan557">change or add </tspan><tspan
+             id="tspan668">change or add </tspan><tspan
              x="296.57928"
              y="579.37835"
-             id="tspan559">measures to Wandb run</tspan></text>
+             id="tspan670">measures to Wandb run</tspan></text>
       </g>
       <g
          id="g148003"
@@ -422,13 +432,13 @@
          transform="matrix(0.15432789,0,0,0.15433057,-87.267768,53.785638)"><tspan
            x="-81.172356"
            y="395.70181"
-           id="tspan561">Dataset (npy + </tspan><tspan
+           id="tspan672">Dataset (npy + </tspan><tspan
            x="-81.172356"
            y="418.37902"
-           id="tspan563">mp4) saved in local </tspan><tspan
+           id="tspan674">mp4) saved in local </tspan><tspan
            x="-81.172356"
            y="441.05621"
-           id="tspan565">folder</tspan></text>
+           id="tspan676">folder</tspan></text>
       <g
          id="g67482"
          transform="matrix(0.25881393,-0.96592351,0.96590673,0.25881842,-238.40413,53.574988)"
@@ -712,12 +722,12 @@
            transform="matrix(0.26458333,0,0,0.26458333,-0.25776634,-1.6758881)"><tspan
              x="-221.37195"
              y="659.02881"
-             id="tspan567">WandB<tspan
+             id="tspan678">WandB<tspan
    y="659.02881"
-   id="tspan569"> </tspan></tspan><tspan
+   id="tspan680"> </tspan></tspan><tspan
              x="-221.37195"
              y="674.1469"
-             id="tspan571">Model</tspan></text>
+             id="tspan682">Model</tspan></text>
       </g>
       <g
          id="g132490"
@@ -1181,10 +1191,10 @@
            transform="matrix(0.26458333,0,0,0.26458333,-0.30221392,-1.6850224)"><tspan
              x="-246.63425"
              y="659.02881"
-             id="tspan573">WandB </tspan><tspan
+             id="tspan684">WandB </tspan><tspan
              x="-246.63425"
              y="674.1469"
-             id="tspan575">Dataset</tspan></text>
+             id="tspan686">Dataset</tspan></text>
       </g>
       <g
          id="g208147"
@@ -1199,7 +1209,7 @@
            transform="matrix(0.26458333,0,0,0.26458333,0.18163981,-1.329449)"><tspan
              x="471.51746"
              y="538.19769"
-             id="tspan577">WandB Table</tspan></text>
+             id="tspan688">WandB Table</tspan></text>
         <path
            id="rect196649"
            style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:0.264586;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:0.264586, 0.793759;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
